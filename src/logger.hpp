@@ -11,6 +11,7 @@
 #include "logInfo.hpp"
 #include "format.hpp"
 #include "asyncLoggerCtrl.hpp"
+#include <unordered_map>
 #include <atomic>
 #include <mutex>
 #include <cstdarg>
@@ -82,14 +83,14 @@ namespace mylog
             // 2.日志消息输出
             outPut(message);
         }
-        /// @brief 把 WARNNING 等级的日志消息输出
+        /// @brief 把 WARN 等级的日志消息输出
         /// @param file 当前文件名
         /// @param line 当前行号
         /// @param format 日志有效载荷的格式，与printf一样
         /// @param  填充占位符
-        void warnning(const char *file, size_t line, const char *format, ...)
+        void warn(const char *file, size_t line, const char *format, ...)
         {
-            Level::Value lv = Level::Value::WARNNING;
+            Level::Value lv = Level::Value::WARN;
             // 0.是否可以输出
             if (levelAvailable(lv) == false)
                 return;
@@ -212,23 +213,25 @@ namespace mylog
         }
     };
 
+    /// @brief 异步日志器，继承Logger类
     class AsyncLogger : public Logger
     {
     private:
         AsyncLoggerCtrl::ptr _ctrl;
+
     public:
         AsyncLogger(const std::string &name, Level::Value minLevel, Formatter::ptr formatter, std::vector<Sinker::ptr> sinkers)
-            : _ctrl(std::make_shared<AsyncLoggerCtrl>(std::bind(&AsyncLogger::sink, this, std::placeholders::_1)))
-            , Logger(name, minLevel, formatter, sinkers)
+            : _ctrl(std::make_shared<AsyncLoggerCtrl>(std::bind(&AsyncLogger::sink, this, std::placeholders::_1))), Logger(name, minLevel, formatter, sinkers)
         {
         }
+
     private:
         virtual void outPut(const std::string &message) override
         {
             // 直接往缓冲区放，日志的落地由异步工作线程完成
             _ctrl->push(message);
         }
-        void sink(AsyncLoggerCharBuf& logMsg)
+        void sink(AsyncLoggerCharBuf &logMsg)
         {
             if (!_sinkers.empty())
                 for (auto &sinker : _sinkers)
@@ -244,7 +247,7 @@ namespace mylog
         Level::Value _minLevel;            // 日志器最低输出等级
         Formatter::ptr _formatter;         // 格式化器
         std::vector<Sinker::ptr> _sinkers; // 日志器的多个日志落地方向
-    
+
     protected:
         LoggerBuilder()
             : _type(Logger::Type::SYNC), _minLevel(Level::Value::DEBUG)
@@ -291,7 +294,7 @@ namespace mylog
             }
             if (_formatter.get() == nullptr)
             {
-                std::cout << "当前日志器：" << _name << " 未检测到日志格式，默认设置为[%t][%c][%n][%i][%f%S:%S%l]%T%m%N";
+                std::cout << "当前日志器：" << _name << " 未检测到日志格式，默认设置为[%t][%c][%n][%i][%f%S:%S%l]%T%m%N\n";
                 setFormatter();
             }
             if (_sinkers.empty())
@@ -309,6 +312,97 @@ namespace mylog
             return lp;
         }
     };
+
+    /// @brief 管理用户创建的所有日志器
+    class LoggerManager
+    {
+    private:
+        std::mutex _mtx;
+        Logger::ptr _defaultConsoleLogger;
+        std::unordered_map<std::string, Logger::ptr> _loggers;
+
+    private:
+        LoggerManager()
+        {
+            buildDefaultConsoleLogger();
+        }
+
+        void buildDefaultConsoleLogger()
+        {
+            std::unique_ptr<LocalLoggerBuilder> llb(new LocalLoggerBuilder());
+            llb->setLoggerName("defaultConsoleSyncLogger");
+            llb->setLoggerType(Logger::Type::SYNC);
+            _defaultConsoleLogger = llb->build();
+            _loggers.insert(std::make_pair("defaultConsoleSyncLogger", _defaultConsoleLogger));
+            std::cout << "初始化默认Console日志器成功\n";
+        }
+        LoggerManager(const LoggerManager &) = delete;
+        LoggerManager &operator=(const LoggerManager &) = delete;
+
+    public:
+        static LoggerManager &getInstance()
+        {
+            static LoggerManager e; // C++11编译器实现了静态局部变量构造时的线程安全
+            return e;
+        }
+        void add(const std::string &name, const Logger::ptr logger)
+        {
+            std::unique_lock<std::mutex> lock(_mtx);
+            _loggers.insert(std::make_pair(name, logger));
+        }
+        bool exists(const std::string &name)
+        {
+            std::unique_lock<std::mutex> lock(_mtx);
+            auto it = _loggers.find(name);
+            return (it != _loggers.end());
+        }
+        Logger::ptr get(const std::string &name)
+        {
+            std::unique_lock<std::mutex> lock(_mtx);
+            auto it = _loggers.find(name);
+            if (it == _loggers.end())
+                return defaultConsoleLogger();
+            return it->second;
+        }
+        Logger::ptr defaultConsoleLogger()
+        {
+            std::unique_lock<std::mutex> lock(_mtx);
+            return _defaultConsoleLogger;
+        }
+    };
+
+    class GlobalLoggerBuilder : public LoggerBuilder
+    {
+    public:
+        virtual Logger::ptr build()
+        {
+            if (_name.empty())
+            {
+                std::cout << "日志器名称不能为空！\n";
+                exit(-1);
+            }
+            if (_formatter.get() == nullptr)
+            {
+                std::cout << "当前日志器：" << _name << " 未检测到日志格式，默认设置为[%t][%c][%n][%i][%f%S:%S%l]%T%m%N\n";
+                setFormatter();
+            }
+            if (_sinkers.empty())
+            {
+                std::cout << "当前日志器：" << _name << " 未检测到落地方向，默认设置为标准输出!\n";
+                setSinker<ConsoleSinker>();
+            }
+            Logger::ptr lp;
+            if (_type == Logger::Type::ASYNC)
+            {
+                lp = std::make_shared<AsyncLogger>(_name, _minLevel, _formatter, _sinkers);
+            }
+            else
+                lp = std::make_shared<SyncLogger>(_name, _minLevel, _formatter, _sinkers);
+            LoggerManager::getInstance().add(_name, lp);
+            return lp;
+        }
+    };
+
 }
 
 #endif

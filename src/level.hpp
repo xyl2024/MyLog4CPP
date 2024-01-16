@@ -1,6 +1,6 @@
 #ifndef _LEVEL_HPP_
 #define _LEVEL_HPP_
-
+#include <string>
 namespace mylog
 {
 #define STRING(val) #val
@@ -11,7 +11,7 @@ namespace mylog
         {
             DEBUG = 0,
             INFO,
-            WARNNING,
+            WARN,
             ERROR,
             FATAL,
             OFF
@@ -25,8 +25,8 @@ namespace mylog
                 return STRING(DEBUG);
             case Level::Value::INFO:
                 return STRING(INFO);
-            case Level::Value::WARNNING:
-                return STRING(WARNNING);
+            case Level::Value::WARN:
+                return STRING(WARN);
             case Level::Value::ERROR:
                 return STRING(ERROR);
             case Level::Value::FATAL:
