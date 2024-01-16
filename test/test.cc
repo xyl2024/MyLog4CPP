@@ -1,13 +1,4 @@
-// #include "util.hpp"
-// #include "level.hpp"
-// #include "logInfo.hpp"
-// #include "format.hpp"
-// #include "sinker.hpp"
-// #include "logger.hpp"
-// #include <iostream>
-// #include <cstring>
-
-#include "mylog.h"
+#include "../mylog/header/mylog.h"
 
 using std::cout;
 using std::endl;

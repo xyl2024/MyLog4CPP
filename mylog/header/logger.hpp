@@ -294,12 +294,12 @@ namespace mylog
             }
             if (_formatter.get() == nullptr)
             {
-                std::cout << "当前日志器：" << _name << " 未检测到日志格式，默认设置为[%t][%c][%n][%i][%f%S:%S%l]%T%m%N\n";
+                // std::cout << "当前日志器：" << _name << " 未检测到日志格式，默认设置为[%t][%c][%n][%i][%f%S:%S%l]%T%m%N\n";
                 setFormatter();
             }
             if (_sinkers.empty())
             {
-                std::cout << "当前日志器：" << _name << " 未检测到落地方向，默认设置为标准输出!\n";
+                // std::cout << "当前日志器：" << _name << " 未检测到落地方向，默认设置为标准输出!\n";
                 setSinker<ConsoleSinker>();
             }
             Logger::ptr lp;
@@ -334,7 +334,7 @@ namespace mylog
             llb->setLoggerType(Logger::Type::SYNC);
             _defaultConsoleLogger = llb->build();
             _loggers.insert(std::make_pair("defaultConsoleSyncLogger", _defaultConsoleLogger));
-            std::cout << "初始化默认Console日志器成功\n";
+            // std::cout << "初始化默认Console日志器成功\n";
         }
         LoggerManager(const LoggerManager &) = delete;
         LoggerManager &operator=(const LoggerManager &) = delete;
