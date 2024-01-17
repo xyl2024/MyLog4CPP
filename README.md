@@ -6,9 +6,10 @@
 
 - 灵活的日志输出格式控制
 - 支持五种日志等级：DEBUG, INFO, WARN, ERROR, FATAL
-- 控制台输出日志
-- 指定文件输出日志
-- 用户自定义日志输出方式
+- 一个日志器允许同时存在多个日志输出方向
+- 支持输出日志到控制台
+- 支持输出日志到指定文件
+- 支持用户自定义日志输出方式
 - 同步日志
 - 异步日志
 
@@ -123,3 +124,29 @@ alonely@DESKTOP-3M5BE4L:~/MyLog4CPP/examples$ cat ./outputTest/test_Logger.log
 - %N : 换行
 
 - %% : %
+
+# 设置日志输出方向
+
+目前支持的日志输出方向：
+
+- ConsoleSinker ：控制台输出
+
+- FileSinker ：指定文件输出
+
+使用时，需要用日志器建造者 `GlobalLoggerBuilder` 进行设置：
+
+```cpp
+    mylog::LoggerBuilder::ptr bd(new GlobalLoggerBuilder());
+    /// 设置控制台输出
+    bd->setSinker<ConsoleSinker>();
+    /// 设置指定文件输出
+    bd->setSinker<FileSinker>("/path/to/your/file");
+```
+
+# TODO
+
+- [ ] 完成 dailyFileSinker 按日期(天)输出到文件
+
+- [ ] 完成 dataBaseSinker 输出到指定数据库
+
+- [ ] 完成 colorConsoleSinker 控制台颜色渲染输出
