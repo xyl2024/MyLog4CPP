@@ -63,7 +63,7 @@ int main()
 }
 ```
 
-控制台输出为：
+编译，运行之后，控制台输出为：
 
 ```bash
 alonely@DESKTOP-3M5BE4L:~/MyLog4CPP/examples$ ./test 
