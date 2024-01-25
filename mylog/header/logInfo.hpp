@@ -5,7 +5,7 @@
 #include "util.hpp"
 #include <thread>
 
-namespace mylog
+namespace __mylog
 {
     /*
         定义日志信息的结构

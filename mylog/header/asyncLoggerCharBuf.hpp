@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace mylog
+namespace __mylog
 {
     // const long long DEFAULT_BUFFER_LEN = 1024 * 1024 * 10; // 默认缓冲区空间大小
     const long long DEFAULT_BUFFER_LEN = 1024 * 1024 * 1; // 默认缓冲区空间大小 1Mb

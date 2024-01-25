@@ -6,7 +6,7 @@
 #include <thread>
 #include <functional>
 #include <unistd.h>
-namespace mylog
+namespace __mylog
 {
     class AsyncLoggerCtrl
     {

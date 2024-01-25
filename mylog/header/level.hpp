@@ -1,7 +1,7 @@
 #ifndef _LEVEL_HPP_
 #define _LEVEL_HPP_
 #include <string>
-namespace mylog
+namespace __mylog
 {
 #define STRING(val) #val
 

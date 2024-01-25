@@ -16,7 +16,7 @@
 #include <mutex>
 #include <cstdarg>
 
-namespace mylog
+namespace __mylog
 {
     /**
      * @brief 日志器基类，组织各个模块进行日志的输出

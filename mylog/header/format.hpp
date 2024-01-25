@@ -12,7 +12,7 @@
 
 namespace logFormatHelper
 {
-    using namespace mylog;
+    using namespace __mylog;
 
     /**
      * @struct Item
@@ -159,7 +159,7 @@ namespace logFormatHelper
     };
 } // namespace logFormatHelper
 
-namespace mylog
+namespace __mylog
 {
     const std::string DEFAULT_FORMAT = "[%t][%c][%n][%i][%f%S:%S%l]%T%m%N";
 

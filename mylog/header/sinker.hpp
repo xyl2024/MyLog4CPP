@@ -5,7 +5,7 @@
 #include <memory>
 #include <cassert>
 
-namespace mylog
+namespace __mylog
 {
     /**
      * @brief 日志落地器基类，负责将日志消息输出到目标位置。

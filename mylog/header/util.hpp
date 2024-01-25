@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sys/stat.h>
 
-namespace mylog
+namespace __mylog
 {
     class TimeUtil
     {
